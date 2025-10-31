@@ -49,6 +49,7 @@ export class KotlinJacksonRenderer extends KotlinRenderer {
             // and enums in the same union
             (_enumType) => "is TextNode",
             (_unionType) => mustNotHappen(),
+            (_transformedStringType) => "is TextNode",
         );
     }
 

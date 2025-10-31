@@ -8,6 +8,11 @@ import {
 import { AcronymStyleOptions, acronymOption } from "../../support/Acronyms";
 import { assertNever } from "../../support/Support";
 import { TargetLanguage } from "../../TargetLanguage";
+import type {
+    PrimitiveStringTypeKind,
+    TransformedStringTypeKind,
+} from "../../Type";
+import type { StringTypeMapping } from "../../Type/TypeBuilderUtils";
 import type { LanguageName, RendererOptions } from "../../types";
 
 import { KotlinJacksonRenderer } from "./KotlinJacksonRenderer";
@@ -54,6 +59,15 @@ export class KotlinTargetLanguage extends TargetLanguage<
 
     public get supportsUnionsWithBothNumberTypes(): boolean {
         return true;
+    }
+
+    public get stringTypeMapping(): StringTypeMapping {
+        const mapping: Map<TransformedStringTypeKind, PrimitiveStringTypeKind> =
+            new Map();
+        mapping.set("date", "date");
+        mapping.set("time", "time");
+        mapping.set("date-time", "date-time");
+        return mapping;
     }
 
     protected makeRenderer<Lang extends LanguageName = "kotlin">(

@@ -1,3 +1,5 @@
+import { iterableSome } from "collection-utils";
+
 import {
     anyTypeIssueAnnotation,
     nullTypeIssueAnnotation,
@@ -19,7 +21,7 @@ import {
     type EnumType,
     MapType,
     type ObjectType,
-    type PrimitiveType,
+    PrimitiveType,
     type Type,
     type UnionType,
 } from "../../Type";
@@ -158,6 +160,15 @@ export class KotlinRenderer extends ConvenienceRenderer {
         ];
     }
 
+    protected haveTransformedStringType(
+        kind: "date-time" | "date" | "time",
+    ): boolean {
+        return iterableSome(
+            this.typeGraph.allTypesUnordered(),
+            (t) => t instanceof PrimitiveType && t.kind === kind,
+        );
+    }
+
     protected kotlinType(
         t: Type,
         withIssues = false,
@@ -194,6 +205,21 @@ export class KotlinRenderer extends ConvenienceRenderer {
                     return [this.kotlinType(nullable, withIssues), optional];
                 return this.nameForNamedType(unionType);
             },
+            (transformedStringType) => {
+                if (transformedStringType.kind === "date-time") {
+                    return "OffsetDateTime";
+                }
+
+                if (transformedStringType.kind === "date") {
+                    return "LocalDate";
+                }
+
+                if (transformedStringType.kind === "time") {
+                    return "OffsetTime";
+                }
+
+                return "String";
+            },
         );
     }
 
@@ -211,6 +237,27 @@ export class KotlinRenderer extends ConvenienceRenderer {
         this.ensureBlankLine();
         this.emitLine("package ", this._kotlinOptions.packageName);
         this.ensureBlankLine();
+
+        // Check if we need to import java.time classes
+        const usesDateTime = this.haveTransformedStringType("date-time");
+        const usesDate = this.haveTransformedStringType("date");
+        const usesTime = this.haveTransformedStringType("time");
+
+        if (usesDateTime) {
+            this.emitLine("import java.time.OffsetDateTime");
+        }
+
+        if (usesDate) {
+            this.emitLine("import java.time.LocalDate");
+        }
+
+        if (usesTime) {
+            this.emitLine("import java.time.OffsetTime");
+        }
+
+        if (usesDateTime || usesDate || usesTime) {
+            this.ensureBlankLine();
+        }
     }
 
     protected emitTopLevelPrimitive(t: PrimitiveType, name: Name): void {

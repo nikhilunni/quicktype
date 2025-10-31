@@ -1093,7 +1093,7 @@ export const KotlinLanguage: Language = {
         "76ae1.json",
     ],
     allowMissingNull: true,
-    features: ["enum", "union", "no-defaults"],
+    features: ["enum", "union", "no-defaults", "date-time"],
     output: "TopLevel.kt",
     topLevel: "TopLevel",
     skipJSON: [
@@ -1178,7 +1178,7 @@ export const KotlinJacksonLanguage: Language = {
         "76ae1.json",
     ],
     allowMissingNull: true,
-    features: ["enum", "union", "no-defaults"],
+    features: ["enum", "union", "no-defaults", "date-time"],
     output: "TopLevel.kt",
     topLevel: "TopLevel",
     skipJSON: [
